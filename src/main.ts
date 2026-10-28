@@ -81,3 +81,70 @@ $$<HTMLButtonElement>('[data-quotes]').forEach((btn) =>
     quotes.scrollBy({ left: step * Number(btn.dataset.quotes), behavior: 'smooth' })
   }),
 )
+
+// Contact form → /api/contact
+const form = $<HTMLFormElement>('#contact-form')
+const status = $<HTMLElement>('#cf-status')
+if (form && status) {
+  const submit = $<HTMLButtonElement>('button[type="submit"]', form)!
+
+  const clearErrors = () => {
+    $$<HTMLElement>('.field-error', form).forEach((el) => el.remove())
+    $$<HTMLElement>('[aria-invalid]', form).forEach((el) => el.removeAttribute('aria-invalid'))
+  }
+  const fieldError = (name: string, msg: string) => {
+    const input = form.elements.namedItem(name) as HTMLInputElement | null
+    if (!input) return
+    input.setAttribute('aria-invalid', 'true')
+    const p = document.createElement('p')
+    p.className = 'field-error'
+    p.id = `${input.id}-error`
+    p.textContent = msg
+    input.setAttribute('aria-describedby', p.id)
+    input.after(p)
+  }
+  const setStatus = (state: 'success' | 'error' | '', msg: string) => {
+    status.dataset.state = state
+    status.textContent = msg
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    clearErrors()
+    setStatus('', '')
+
+    const data = Object.fromEntries(new FormData(form)) as Record<string, string>
+    const local: Record<string, string> = {}
+    if (!data.name?.trim()) local.name = 'Enter your name.'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email?.trim() ?? '')) local.email = 'Enter a valid email address.'
+    if (!data.message?.trim()) local.message = 'Add a short message.'
+    if (Object.keys(local).length) {
+      Object.entries(local).forEach(([k, v]) => fieldError(k, v))
+      ;(form.querySelector('[aria-invalid="true"]') as HTMLElement | null)?.focus()
+      return
+    }
+
+    submit.disabled = true
+    submit.textContent = 'Sending…'
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      const body = (await res.json().catch(() => ({}))) as { error?: string; fields?: Record<string, string> }
+      if (!res.ok) {
+        Object.entries(body.fields ?? {}).forEach(([k, v]) => fieldError(k, v))
+        setStatus('error', body.error ?? 'Your message couldn’t be sent. Try again, or message on Instagram.')
+        return
+      }
+      form.reset()
+      setStatus('success', 'Message sent. Chloe will reply to the email address you gave.')
+    } catch {
+      setStatus('error', 'Your message couldn’t be sent. Check your connection and try again, or message on Instagram.')
+    } finally {
+      submit.disabled = false
+      submit.textContent = 'Send message'
+    }
+  })
+}
