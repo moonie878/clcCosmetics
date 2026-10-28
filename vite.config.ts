@@ -9,8 +9,9 @@ import images from './src/images.json'
  * Set IMAGE_MODE=remote to point at the old WordPress URLs instead (preview only).
  */
 const remote = process.env.IMAGE_MODE === 'remote'
-const map = images as Record<string, string>
-const src = (name: string) => (remote ? map[name] : `/images/${name}.webp`)
+const map = images as Record<string, string | string[]>
+const first = (v: string | string[]) => (Array.isArray(v) ? v[0] : v)
+const src = (name: string) => (remote ? first(map[name]) : `/images/${name}.webp`)
 
 function siteImages(): Plugin {
   return {

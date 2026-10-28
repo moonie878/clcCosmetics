@@ -1,5 +1,8 @@
 {
-  "logo": "https://clccosmetics.com/wp-content/uploads/2023/06/354818717_1006571030509694_27137294387708821_n-1.jpg",
+  "logo": [
+    "https://clccosmetics.com/wp-content/uploads/2023/06/354818717_1006571030509694_27137294387708821_n-1.jpg",
+    "https://clccosmetics.com/wp-content/uploads/2023/06/354818717_1006571030509694_27137294387708821_n-1-300x201.jpg"
+  ],
   "chloe": "https://clccosmetics.com/wp-content/uploads/2024/02/423221172_1919100678492459_4286340884580997437_n-768x912.jpg",
   "before": "https://clccosmetics.com/wp-content/uploads/2023/06/BEFORE-e1687352926547.jpg",
   "after": "https://clccosmetics.com/wp-content/uploads/2023/06/AFTER-e1687352945149.jpg",
@@ -133,5 +136,9 @@
   "gallery-118": "https://clccosmetics.com/wp-content/uploads/2023/08/32063869_486171868464231_2669182497832566784_n.jpg",
   "gallery-119": "https://clccosmetics.com/wp-content/uploads/2023/08/27880643_585577505128935_8236249184840187904_n.jpg",
   "gallery-120": "https://clccosmetics.com/wp-content/uploads/2023/08/27880455_930476087112752_8603172157947641856_n.jpg",
-  "gallery-121": "https://clccosmetics.com/wp-content/uploads/2023/08/27880425_2039016846351087_4217436427568283648_n.jpg"
+  "gallery-121": "https://clccosmetics.com/wp-content/uploads/2023/08/27880425_2039016846351087_4217436427568283648_n.jpg",
+  "accreditation": [
+    "https://clccosmetics.com/wp-content/uploads/2023/08/393475667_343982661335942_4595216796923536763_n.jpg",
+    "https://clccosmetics.com/wp-content/uploads/2023/08/393475667_343982661335942_4595216796923536763_n-300x167.jpg"
+  ]
 }

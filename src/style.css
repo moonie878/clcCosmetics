@@ -115,6 +115,26 @@ img {
   height: 1.15rem;
 }
 
+/* ---------- Logo & accreditation ---------- */
+.logo-link {
+  display: inline-block;
+  line-height: 0;
+}
+/* multiply drops the JPG's white background onto the porcelain page */
+.logo {
+  height: 3rem;
+  width: auto;
+  mix-blend-mode: multiply;
+}
+.logo-lg {
+  height: 4.5rem;
+}
+.accreditation {
+  height: 5.5rem;
+  width: auto;
+  mix-blend-mode: multiply;
+}
+
 /* ---------- Header ---------- */
 .site-header {
   position: sticky;

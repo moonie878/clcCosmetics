@@ -1,7 +1,8 @@
 // Downloads every image from the old WordPress site, resizes and converts to WebP.
 // Run once on your own machine BEFORE the WordPress hosting is switched off:
 //   npm run fetch-images
-// Tries https first, falls back to http (the old site's SSL may be invalid).
+// Each entry in src/images.json is a URL or a list of fallback URLs.
+// Every URL is tried over https first, then http (the old site's SSL may be invalid).
 import { readFile, mkdir, writeFile, access } from 'node:fs/promises'
 import sharp from 'sharp'
 
@@ -16,7 +17,11 @@ const HEADERS = {
   Referer: 'http://clccosmetics.com/',
 }
 
-const widthFor = (name) => (name.startsWith('gallery-') ? 1200 : name === 'logo' ? 600 : 1600)
+const widthFor = (name) => {
+  if (name.startsWith('gallery-')) return 1200
+  if (name === 'logo' || name === 'accreditation') return 600
+  return 1600
+}
 const entries = Object.entries(manifest)
 let done = 0
 const failed = []
@@ -26,46 +31,48 @@ const describe = (err) => {
   return [err?.message, cause?.code, cause?.message].filter(Boolean).join(' | ')
 }
 
-async function download(url) {
-  const variants = [url.replace(/^http:/, 'https:'), url.replace(/^https:/, 'http:')]
+async function download(urls) {
+  const list = (Array.isArray(urls) ? urls : [urls]).filter(Boolean)
   const errors = []
-  for (const u of variants) {
-    try {
-      const res = await fetch(u, { headers: HEADERS, redirect: 'follow' })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const type = res.headers.get('content-type') ?? ''
-      if (!type.startsWith('image/')) throw new Error(`not an image (${type || 'no content-type'})`)
-      return Buffer.from(await res.arrayBuffer())
-    } catch (err) {
-      errors.push(`${u.split(':')[0]}: ${describe(err)}`)
+  for (const url of list) {
+    for (const u of [url.replace(/^http:/, 'https:'), url.replace(/^https:/, 'http:')]) {
+      try {
+        const res = await fetch(u, { headers: HEADERS, redirect: 'follow' })
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const type = res.headers.get('content-type') ?? ''
+        if (!type.startsWith('image/')) throw new Error(`not an image (${type || 'no content-type'})`)
+        return Buffer.from(await res.arrayBuffer())
+      } catch (err) {
+        errors.push(`${u}: ${describe(err)}`)
+      }
     }
   }
-  throw new Error(errors.join('  ||  '))
+  throw new Error(errors.join('\n      '))
 }
 
-async function fetchOne([name, url]) {
+async function fetchOne([name, urls]) {
   const dest = new URL(`${name}.webp`, outDir)
   try {
     await access(dest)
     done++
     return // already downloaded
   } catch {}
-  if (!url) {
+  if (!urls || (Array.isArray(urls) && !urls.length)) {
     failed.push(`${name}  (no URL in images.json and no file in public/images)`)
     return
   }
   try {
-    const buf = await download(url)
+    const buf = await download(urls)
     const out = await sharp(buf)
       .rotate()
       .resize({ width: widthFor(name), withoutEnlargement: true })
-      .webp({ quality: 80 })
+      .webp({ quality: name === 'logo' || name === 'accreditation' ? 90 : 80 })
       .toBuffer()
     await writeFile(dest, out)
     done++
     process.stdout.write(`\r${done}/${entries.length}`)
   } catch (err) {
-    failed.push(`${name}  ${url}\n      ${err.message}`)
+    failed.push(`${name}\n      ${err.message}`)
   }
 }
 
