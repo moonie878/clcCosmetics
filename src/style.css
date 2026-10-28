@@ -132,6 +132,8 @@ img {
 .accreditation {
   height: 5.5rem;
   width: auto;
+  max-width: 100%;
+  object-fit: contain;
   mix-blend-mode: multiply;
 }
 
