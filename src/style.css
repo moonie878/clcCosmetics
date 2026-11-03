@@ -406,18 +406,20 @@
 
   /* ---------- Gallery ---------- */
   .gallery {
-    columns: 2 10rem;
-    column-gap: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .gallery {
+    grid-template-columns: repeat(4, 1fr);
   }
-  @media (min-width: 768px) {
-    .gallery {
-      columns: 4 12rem;
-    }
-  }
-  .gallery li {
-    break-inside: avoid;
-    margin-bottom: 0.75rem;
-  }
+}
+
+.gallery li {
+  margin: 0;
+}
   .gallery-item {
     display: block;
     width: 100%;
